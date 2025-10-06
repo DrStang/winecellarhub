@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Allow: /features.php
+Allow: /share_wine.php
+Sitemap: https://winecellarhub.com/sitemap.xml

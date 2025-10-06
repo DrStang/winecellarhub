@@ -27,4 +27,3 @@ if ($desc === null) {
 
 echo json_encode(['ok'=>true, 'desc_md'=>$desc, 'cached'=>$wasCached, 'key'=>$ck]);
 
-

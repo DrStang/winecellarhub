@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head><title>Wine Pairing Concierge</title></head>
+<body class="prose max-w-2xl mx-auto p-6">
+  <h1>Wine Pairing Concierge</h1>
+  <p>Tell me what you’re eating and your budget. I’ll do the fancy pairing part.</p>
+  <form method="POST" action="/wine/api/create_checkout.php">
+    <input type="hidden" name="item_type" value="service">
+    <label>Dish / menu</label>
+    <textarea name="dish" required></textarea>
+
+    <label>Total Budget (USD)</label>
+    <input type="number" name="budget" min="10" step="1" required>
+
+    <label>Preferred Regions (optional)</label>
+    <input type="text" name="regions" placeholder="e.g., Rioja, Napa, Loire">
+
+    <label>Dietary notes (optional)</label>
+    <input type="text" name="dietary">
+
+    <label>Guests</label>
+    <input type="number" name="guests" min="1" value="2">
+
+    <label>Email for delivery</label>
+    <input type="email" name="email" required>
+
+    <div class="mt-4 flex gap-3">
+      <button name="item_slug" value="pairing-starter" class="btn">Starter – $29</button>
+      <button name="item_slug" value="pairing-premium" class="btn">Premium – $79</button>
+    </div>
+  </form>
+</body>
+</html>

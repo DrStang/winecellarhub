@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WineCellarHub – Blue Theme Palette Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ocean_primary: "#2563EB",
+                        ocean_accent: "#06B6D4",
+                        ocean_surface: "#F0F9FF",
+                        ocean_text: "#0F172A",
+                        ocean_muted: "#64748B",
+
+                        navy_primary: "#1D4ED8",
+                        navy_accent: "#FBBF24",
+                        navy_surface: "#111827",
+                        navy_text: "#F9FAFB",
+                        navy_muted: "#9CA3AF",
+
+                        cerulean_primary: "#3B82F6",
+                        cerulean_accent: "#F87171",
+                        cerulean_surface: "#FFFFFF",
+                        cerulean_text: "#1E293B",
+                        cerulean_muted: "#6B7280",
+
+                        storm_primary: "#1E40AF",
+                        storm_accent: "#64748B",
+                        storm_surface: "#F9FAFB",
+                        storm_text: "#111827",
+                        storm_muted: "#6B7280",
+
+                        ice_primary: "#2563EB",
+                        ice_accent: "#10B981",
+                        ice_surface: "#ECFDF5",
+                        ice_text: "#064E3B",
+                        ice_muted: "#6EE7B7",
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .swatch { height: 40px; border-radius: 0.5rem; }
+        .card { border-radius: 1rem; }
+        .shadow-soft { box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.06); }
+        .label { font-size: 12px; color: #6b7280; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+<div class="max-w-7xl mx-auto p-6">
+    <h1 class="text-3xl font-semibold mb-2">Blue-Based Theme Palette Preview</h1>
+    <p class="text-gray-600 mb-6">Five options tuned for a blue primary button. Each shows swatches and a sample button + input.</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5">
+        <!-- Ocean Breeze -->
+        <section class="card shadow-soft p-4 bg-white flex flex-col">
+            <h2 class="text-lg font-semibold mb-2">Ocean Breeze</h2>
+            <div class="space-y-3">
+                <div><div class="label mb-1">Primary — #2563EB</div><div class="swatch bg-ocean_primary"></div></div>
+                <div><div class="label mb-1">Accent — #06B6D4</div><div class="swatch bg-ocean_accent"></div></div>
+                <div><div class="label mb-1">Surface — #F0F9FF</div><div class="swatch bg-ocean_surface"></div></div>
+                <div><div class="label mb-1">Text — #0F172A</div><div class="swatch bg-ocean_text"></div></div>
+                <div><div class="label mb-1">Muted — #64748B</div><div class="swatch bg-ocean_muted"></div></div>
+                <div class="mt-2 grid grid-cols-2 gap-3">
+                    <button class="px-3 py-2 rounded-lg text-white bg-ocean_primary hover:opacity-90 transition">Primary</button>
+                    <button class="px-3 py-2 rounded-lg text-white bg-ocean_accent hover:opacity-90 transition">Accent</button>
+                </div>
+                <label class="label mt-2">Input</label>
+                <input type="text" placeholder="Search wines…"
+                       class="rounded-lg px-3 py-2 border border-ocean_muted/40 bg-ocean_surface text-ocean_text focus:outline-none focus:ring-2 focus:ring-ocean_primary focus:border-ocean_primary" />
+            </div>
+        </section>
+
+        <!-- Navy & Gold -->
+        <section class="card shadow-soft p-4 bg-white flex flex-col">
+            <h2 class="text-lg font-semibold mb-2">Navy &amp; Gold</h2>
+            <div class="space-y-3">
+                <div><div class="label mb-1">Primary — #1D4ED8</div><div class="swatch bg-navy_primary"></div></div>
+                <div><div class="label mb-1">Accent — #FBBF24</div><div class="swatch bg-navy_accent"></div></div>
+                <div><div class="label mb-1">Surface — #111827</div><div class="swatch bg-navy_surface"></div></div>
+                <div><div class="label mb-1">Text — #F9FAFB</div><div class="swatch bg-navy_text"></div></div>
+                <div><div class="label mb-1">Muted — #9CA3AF</div><div class="swatch bg-navy_muted"></div></div>
+                <div class="mt-2 grid grid-cols-2 gap-3">
+                    <button class="px-3 py-2 rounded-lg text-white bg-navy_primary hover:opacity-90 transition">Primary</button>
+                    <button class="px-3 py-2 rounded-lg text-gray-900 bg-navy_accent hover:opacity-90 transition">Accent</button>
+                </div>
+                <label class="label mt-2">Input</label>
+                <input type="text" placeholder="Search wines…"
+                       class="rounded-lg px-3 py-2 border border-navy_surface bg-navy_surface text-navy_text placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy_primary focus:border-navy_primary" />
+            </div>
+        </section>
+
+        <!-- Cerulean & Coral -->
+        <section class="card shadow-soft p-4 bg-white flex flex-col">
+            <h2 class="text-lg font-semibold mb-2">Cerulean &amp; Coral</h2>
+            <div class="space-y-3">
+                <div><div class="label mb-1">Primary — #3B82F6</div><div class="swatch bg-cerulean_primary"></div></div>
+                <div><div class="label mb-1">Accent — #F87171</div><div class="swatch bg-cerulean_accent"></div></div>
+                <div><div class="label mb-1">Surface — #FFFFFF</div><div class="swatch bg-cerulean_surface border border-gray-200"></div></div>
+                <div><div class="label mb-1">Text — #1E293B</div><div class="swatch bg-cerulean_text"></div></div>
+                <div><div class="label mb-1">Muted — #6B7280</div><div class="swatch bg-cerulean_muted"></div></div>
+                <div class="mt-2 grid grid-cols-2 gap-3">
+                    <button class="px-3 py-2 rounded-lg text-white bg-cerulean_primary hover:opacity-90 transition">Primary</button>
+                    <button class="px-3 py-2 rounded-lg text-white bg-cerulean_accent hover:opacity-90 transition">Accent</button>
+                </div>
+                <label class="label mt-2">Input</label>
+                <input type="text" placeholder="Search wines…"
+                       class="rounded-lg px-3 py-2 border border-gray-300 bg-cerulean_surface text-cerulean_text focus:outline-none focus:ring-2 focus:ring-cerulean_primary focus:border-cerulean_primary" />
+            </div>
+        </section>
+
+        <!-- Stormy Gray -->
+        <section class="card shadow-soft p-4 bg-white flex flex-col">
+            <h2 class="text-lg font-semibold mb-2">Stormy Gray</h2>
+            <div class="space-y-3">
+                <div><div class="label mb-1">Primary — #1E40AF</div><div class="swatch bg-storm_primary"></div></div>
+                <div><div class="label mb-1">Accent — #64748B</div><div class="swatch bg-storm_accent"></div></div>
+                <div><div class="label mb-1">Surface — #F9FAFB</div><div class="swatch bg-storm_surface"></div></div>
+                <div><div class="label mb-1">Text — #111827</div><div class="swatch bg-storm_text"></div></div>
+                <div><div class="label mb-1">Muted — #6B7280</div><div class="swatch bg-storm_muted"></div></div>
+                <div class="mt-2 grid grid-cols-2 gap-3">
+                    <button class="px-3 py-2 rounded-lg text-white bg-storm_primary hover:opacity-90 transition">Primary</button>
+                    <button class="px-3 py-2 rounded-lg text-white bg-storm_accent hover:opacity-90 transition">Accent</button>
+                </div>
+                <label class="label mt-2">Input</label>
+                <input type="text" placeholder="Search wines…"
+                       class="rounded-lg px-3 py-2 border border-storm_accent/40 bg-storm_surface text-storm_text focus:outline-none focus:ring-2 focus:ring-storm_primary focus:border-storm_primary" />
+            </div>
+        </section>
+
+        <!-- Ice & Mint -->
+        <section class="card shadow-soft p-4 bg-white flex flex-col">
+            <h2 class="text-lg font-semibold mb-2">Ice &amp; Mint</h2>
+            <div class="space-y-3">
+                <div><div class="label mb-1">Primary — #2563EB</div><div class="swatch bg-ice_primary"></div></div>
+                <div><div class="label mb-1">Accent — #10B981</div><div class="swatch bg-ice_accent"></div></div>
+                <div><div class="label mb-1">Surface — #ECFDF5</div><div class="swatch bg-ice_surface"></div></div>
+                <div><div class="label mb-1">Text — #064E3B</div><div class="swatch bg-ice_text"></div></div>
+                <div><div class="label mb-1">Muted — #6EE7B7</div><div class="swatch bg-ice_muted"></div></div>
+                <div class="mt-2 grid grid-cols-2 gap-3">
+                    <button class="px-3 py-2 rounded-lg text-white bg-ice_primary hover:opacity-90 transition">Primary</button>
+                    <button class="px-3 py-2 rounded-lg text-white bg-ice_accent hover:opacity-90 transition">Accent</button>
+                </div>
+                <label class="label mt-2">Input</label>
+                <input type="text" placeholder="Search wines…"
+                       class="rounded-lg px-3 py-2 border border-ice_muted/40 bg-ice_surface text-ice_text focus:outline-none focus:ring-2 focus:ring-ice_primary focus:border-ice_primary" />
+            </div>
+        </section>
+    </div>
+
+    <div class="mt-8 text-sm text-gray-500">
+        Tip: Copy the hex values into your CSS variables, or add these as named theme blocks with <code>data-theme="ocean"</code>, <code>data-theme="navy"</code>, etc.
+    </div>
+</div>
+</body>
+</html>
