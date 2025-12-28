@@ -9,7 +9,7 @@ Dotenv\Dotenv::createImmutable(__DIR__)->safeLoad();
 $host = '100.66.175.61:3306';
 $db   = 'Wine';
 $user = 'wine';
-$pass = '1qaz2wsx!QAZ@WSX';
+$pass = '';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass);
@@ -49,7 +49,7 @@ function require_admin() {
 $winelist_host = '100.66.175.61:3306';
 $winelist_db   = 'winelist';
 $winelist_user = 'winelist';
-$winelist_pass = '1qaz2wsx!QAZ@WSX';
+$winelist_pass = '';
 
 try {
     $winelist_pdo = new PDO("mysql:host=$winelist_host;dbname=$winelist_db;charset=utf8mb4", $winelist_user, $winelist_pass);
