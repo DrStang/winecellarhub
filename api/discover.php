@@ -16,13 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// Get action parameter
 $action = $_GET['action'] ?? 'stats';
 
 try {
     switch ($action) {
         case 'stats':
-            // Return all discover stats in one call (for initial load)
             $response = [
                 'trending' => getTrendingWines($winelist_pdo, 10),
                 'new_arrivals' => getNewArrivals($winelist_pdo, 10),
@@ -68,9 +66,7 @@ try {
             $page = max(1, intval($_GET['page'] ?? 1));
             $limit = min(50, max(1, intval($_GET['limit'] ?? 20)));
             $offset = ($page - 1) * $limit;
-
-            $result = browseByCategory($winelist_pdo, $category, $value, $limit, $offset);
-            echo json_encode($result);
+            echo json_encode(browseByCategory($winelist_pdo, $category, $value, $limit, $offset));
             break;
 
         default:
@@ -87,30 +83,29 @@ try {
 // HELPER FUNCTIONS
 // ============================================================================
 
-/**
- * Get trending wines (most added to cellars recently)
- */
 function getTrendingWines(PDO $pdo, int $limit): array {
-    // Wines most frequently added to user inventories in the last 30 days
     $sql = "
         SELECT 
             w.id, w.name, w.winery, w.region, w.country, w.type, 
             w.grapes, w.vintage, w.price, w.image_url,
-            COUNT(DISTINCT i.id) AS add_count
+            COUNT(DISTINCT b.bottle_id) AS add_count
         FROM wines w
-        INNER JOIN inventory i ON i.wine_id = w.id
-        WHERE i.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        INNER JOIN bottles b ON b.wine_id = w.id
+        WHERE b.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
         GROUP BY w.id
         ORDER BY add_count DESC, w.name ASC
         LIMIT :limit
     ";
 
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-    $stmt->execute();
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        $results = [];
+    }
 
-    // If not enough trending, supplement with popular wines
     if (count($results) < $limit) {
         $existingIds = array_column($results, 'id');
         $needed = $limit - count($results);
@@ -134,9 +129,6 @@ function getTrendingWines(PDO $pdo, int $limit): array {
     return $results;
 }
 
-/**
- * Get new arrivals (recently added to catalog)
- */
 function getNewArrivals(PDO $pdo, int $limit): array {
     $sql = "
         SELECT id, name, winery, region, country, type, grapes, vintage, price, image_url
@@ -152,7 +144,6 @@ function getNewArrivals(PDO $pdo, int $limit): array {
     $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // If not enough new arrivals, get any recent wines
     if (count($results) < $limit) {
         $existingIds = array_column($results, 'id');
         $needed = $limit - count($results);
@@ -176,12 +167,7 @@ function getNewArrivals(PDO $pdo, int $limit): array {
     return $results;
 }
 
-/**
- * Get staff picks (curated selection)
- * Uses wines from expert lists or high-rated wines
- */
 function getStaffPicks(PDO $pdo, int $limit): array {
-    // First try to get wines from expert picks
     $sql = "
         SELECT DISTINCT
             w.id, w.name, w.winery, w.region, w.country, w.type,
@@ -190,7 +176,7 @@ function getStaffPicks(PDO $pdo, int $limit): array {
         FROM wines w
         INNER JOIN expert_picks ep ON ep.wine_id = w.id
         WHERE ep.medal IN ('Best in Show', 'Platinum')
-          OR ep.score >= 95
+           OR ep.score >= 95
         ORDER BY RAND()
         LIMIT :limit
     ";
@@ -200,21 +186,19 @@ function getStaffPicks(PDO $pdo, int $limit): array {
     $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Add a staff pick reason if missing
+    $reasons = [
+        'Outstanding value for the quality',
+        'Perfect for special occasions',
+        'A staff favorite - always delivers',
+        'Exceptional expression of the region',
+        'Crowd-pleaser that impresses every time',
+    ];
     foreach ($results as &$wine) {
         if (empty($wine['reason'])) {
-            $reasons = [
-                'Outstanding value for the quality',
-                'Perfect for special occasions',
-                'A staff favorite - always delivers',
-                'Exceptional expression of the region',
-                'Crowd-pleaser that impresses every time',
-            ];
             $wine['reason'] = $reasons[array_rand($reasons)];
         }
     }
 
-    // If not enough, supplement with highly-rated wines
     if (count($results) < $limit) {
         $existingIds = array_column($results, 'id');
         $needed = $limit - count($results);
@@ -239,35 +223,69 @@ function getStaffPicks(PDO $pdo, int $limit): array {
     return $results;
 }
 
-/**
- * Get wine types with counts
- */
 function getWineTypes(PDO $pdo): array {
     $sql = "
         SELECT 
-            COALESCE(NULLIF(TRIM(type), ''), 'Other') AS name,
+            LOWER(TRIM(type)) AS raw_type,
             COUNT(*) AS count
         FROM wines
         WHERE type IS NOT NULL AND TRIM(type) != ''
-        GROUP BY name
-        ORDER BY count DESC
+        GROUP BY raw_type
     ";
 
     $stmt = $pdo->query($sql);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $rawTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $normalized = [
+        'Red' => 0,
+        'White' => 0,
+        'Rose' => 0,
+        'Sparkling' => 0,
+        'Dessert' => 0,
+        'Fortified' => 0,
+    ];
+
+    foreach ($rawTypes as $row) {
+        $type = $row['raw_type'];
+        $count = (int) $row['count'];
+
+        if (preg_match('/red|cabernet|merlot|pinot noir|syrah|shiraz|malbec|zinfandel|sangiovese|tempranillo|nebbiolo/i', $type)) {
+            $normalized['Red'] += $count;
+        } elseif (preg_match('/white|chardonnay|sauvignon blanc|riesling|pinot grigio|pinot gris|viognier|gewurz/i', $type)) {
+            $normalized['White'] += $count;
+        } elseif (preg_match('/rose|pink/i', $type)) {
+            $normalized['Rose'] += $count;
+        } elseif (preg_match('/sparkling|champagne|prosecco|cava|cremant|brut/i', $type)) {
+            $normalized['Sparkling'] += $count;
+        } elseif (preg_match('/dessert|sweet|ice wine|late harvest|sauternes|tokaj/i', $type)) {
+            $normalized['Dessert'] += $count;
+        } elseif (preg_match('/fortified|port|sherry|madeira|marsala|vermouth/i', $type)) {
+            $normalized['Fortified'] += $count;
+        }
+    }
+
+    $result = [];
+    foreach ($normalized as $name => $count) {
+        if ($count > 0) {
+            $result[] = ['name' => $name, 'count' => $count];
+        }
+    }
+
+    usort($result, fn($a, $b) => $b['count'] - $a['count']);
+
+    return $result;
 }
 
-/**
- * Get top regions with counts
- */
 function getTopRegions(PDO $pdo, int $limit): array {
     $sql = "
         SELECT 
-            region AS name,
+            country AS name,
             COUNT(*) AS count
         FROM wines
-        WHERE region IS NOT NULL AND TRIM(region) != ''
-        GROUP BY region
+        WHERE country IS NOT NULL 
+          AND TRIM(country) != ''
+          AND LENGTH(country) > 2
+        GROUP BY country
         ORDER BY count DESC
         LIMIT :limit
     ";
@@ -278,9 +296,6 @@ function getTopRegions(PDO $pdo, int $limit): array {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-/**
- * Get price range distribution
- */
 function getPriceRanges(PDO $pdo): array {
     $ranges = [
         ['label' => 'Under $20', 'min' => 0, 'max' => 20],
@@ -299,26 +314,35 @@ function getPriceRanges(PDO $pdo): array {
     return $ranges;
 }
 
-/**
- * Browse wines by category (type, region, or price)
- */
 function browseByCategory(PDO $pdo, string $category, string $value, int $limit, int $offset): array {
     $where = "1=1";
     $params = [];
 
     switch ($category) {
         case 'type':
-            $where = "LOWER(type) = LOWER(:value)";
-            $params[':value'] = $value;
+            $typeMap = [
+                'Red' => 'red|cabernet|merlot|pinot noir|syrah|shiraz|malbec|zinfandel|sangiovese|tempranillo|nebbiolo',
+                'White' => 'white|chardonnay|sauvignon blanc|riesling|pinot grigio|pinot gris|viognier|gewurz',
+                'Rose' => 'rose|pink',
+                'Sparkling' => 'sparkling|champagne|prosecco|cava|cremant|brut',
+                'Dessert' => 'dessert|sweet|ice wine|late harvest|sauternes|tokaj',
+                'Fortified' => 'fortified|port|sherry|madeira|marsala|vermouth',
+            ];
+            if (isset($typeMap[$value])) {
+                $where = "LOWER(type) REGEXP :pattern";
+                $params[':pattern'] = $typeMap[$value];
+            } else {
+                $where = "LOWER(type) = LOWER(:value)";
+                $params[':value'] = $value;
+            }
             break;
 
         case 'region':
-            $where = "LOWER(region) = LOWER(:value)";
+            $where = "LOWER(country) = LOWER(:value)";
             $params[':value'] = $value;
             break;
 
         case 'price':
-            // Value format: "min-max" e.g., "20-50"
             $parts = explode('-', $value);
             if (count($parts) === 2) {
                 $min = floatval($parts[0]);
@@ -333,13 +357,11 @@ function browseByCategory(PDO $pdo, string $category, string $value, int $limit,
             return ['wines' => [], 'total' => 0];
     }
 
-    // Get total count
     $countSql = "SELECT COUNT(*) FROM wines WHERE $where";
     $countStmt = $pdo->prepare($countSql);
     $countStmt->execute($params);
     $total = (int) $countStmt->fetchColumn();
 
-    // Get wines
     $sql = "
         SELECT id, name, winery, region, country, type, grapes, vintage, price, image_url
         FROM wines
