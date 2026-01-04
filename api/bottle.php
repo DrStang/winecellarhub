@@ -86,10 +86,10 @@ if ($method === 'GET') {
 
         // Determine best image
         $thumb = '';
-        if (!empty($bottle['photo_path'])) {
-            $thumb = $bottle['photo_path'];
-        } elseif (!empty($bottle['image_url'])) {
+        if (!empty($bottle['image_url'])) {
             $thumb = $bottle['image_url'];
+        } elseif (!empty($bottle['photo_path'])) {
+            $thumb = $bottle['photo_path'];
         }
         $bottle['thumb'] = $thumb;
 
